@@ -4,9 +4,10 @@ terraform {
     key    = "eks-gitops-platform"
     region = "eu-central-1"
     encrypt = true
+    use_lockfile = true
   }
 
-  required_version = ">=1.0"
+  required_version = ">=1.10"
 
   required_providers {
     aws = {
