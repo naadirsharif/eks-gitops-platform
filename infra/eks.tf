@@ -1,23 +1,23 @@
 module "eks" {
-    source = "terraform-aws-modules/eks/aws"
-    
-    name = local.name 
-    kubernetes_version = "1.28"
+  source = "terraform-aws-modules/eks/aws"
 
-    endpoint_public_access = true
-    endpoint_public_access_cidrs = ["0.0.0.0/0"] 
+  name               = local.name
+  kubernetes_version = "1.28"
 
-    enable_irsa = true 
+  endpoint_public_access       = true
+  endpoint_public_access_cidrs = ["0.0.0.0/0"]
 
-    vpc_id = module.vpc.id
-    subnet_ids = module.vpc.private_subnets 
-    control_plane_subnet_ids = module.vpc.public_subnets
+  enable_irsa = true
 
-    eks_managed_node_groups = {
-       default = {
-        disk_size      = 50
-        instance_types = ["t3a.large", "t3.large"]
-       }
+  vpc_id                   = module.vpc.id
+  subnet_ids               = module.vpc.private_subnets
+  control_plane_subnet_ids = module.vpc.public_subnets
+
+  eks_managed_node_groups = {
+    default = {
+      disk_size      = 50
+      instance_types = ["t3a.large", "t3.large"]
     }
-    tags = local.tags
+  }
+  tags = local.tags
 }
