@@ -10,6 +10,7 @@ locals {
     ManagedBy   = "terraform"
   }
 
+  # Fetch the first 3 AZs from the current region
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
 
   private_subnet_cidrs = {
