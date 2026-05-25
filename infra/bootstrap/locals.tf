@@ -6,5 +6,6 @@ locals {
     Environment = "lab"
     Project     = "eks-gitops-platform"
     Owner       = "Naadir"
+    ManagedBy   = "terraform"
   }
 }
