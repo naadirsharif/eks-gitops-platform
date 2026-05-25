@@ -5,7 +5,7 @@ locals {
 
 
   tags = {
-    Environment = "sandbox"
+    Environment = "lab"
     Project     = "eks-gitops-platform"
     Owner       = "Naadir"
   }
