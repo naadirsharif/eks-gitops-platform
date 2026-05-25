@@ -1,3 +1,23 @@
+# Provider = AWS 
+
+terraform {
+
+  required_version = ">=1.10"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 4.0"
+    }
+  }
+}
+
+provider "aws" {
+  region = "eu-central-1"
+}
+
+# S3 bucket for tfstate file
+
 resource "aws_s3_bucket" "tf_state" {
   bucket           = "${local.name_prefix}-tfstate-bucket"
   bucket_namespace = "global"
