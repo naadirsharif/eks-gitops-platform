@@ -1,44 +1,27 @@
-module "vpc" {
-  source  = "terraform-aws-modules/vpc/aws"
-  version = "5.9.0"
+resource "aws_vpc" "vpc" {
+  cidr_block       = var.vpc_cidr_block
+  instance_tenancy = "default"
 
-  name = local.name
-
-  cidr = "10.0.0.0/16"
-
-  azs = [
-    "${local.region}-a",
-    "${local.region}-b",
-    "${local.region}-c"
-  ]
-
-  private_subnets = [
-    "10.0.1.0/24",
-    "10.0.2.0/24",
-    "10.0.3.0/24"
-  ]
-
-  public_subnets = [
-    "10.0.4.0/24",
-    "10.0.5.0/24",
-    "10.0.6.0/24"
-  ]
-
-  enable_nat_gateway = true
-  single_nat_gateway = true
-
-  enable_dns_hostnames = true
-
-  private_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/-internal-elb"    = 1
-  }
-
-  public_subnet_tags = {
-    "kubernetes.io/cluster/${local.name}" = "shared"
-    "kubernetes.io/role/elb"              = 1
-  }
-
-  tags = local.tags
+  tags = merge(local.tags, { Name = "${local.name_prefix}-vpc" })
 }
 
+
+resource "aws_subnet" "private_subnets" {
+  for_each = local.private_subnet_cidrs
+
+  vpc_id     = aws_vpc.vpc.id
+  availability_zone = each.key
+  cidr_block = each.value
+
+  tags = merge(local.tags, { Name = "${local.name_prefix}-private-${each.key}" })
+}
+
+resource "aws_subnet" "public_subnets" {
+  for_each = local.public_subnet_cidrs
+
+  vpc_id            = aws_vpc.vpc.id
+  availability_zone = each.key
+  cidr_block        = each.value
+
+  tags = merge(local.tags, { Name = "${local.name_prefix}-public-${each.key}" })
+}
