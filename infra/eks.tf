@@ -10,7 +10,7 @@ module "eks" {
   enable_irsa = true    ## IAM roles for service accounts
                         ## Enables OIDC provider for pod-level AWS permissions
 
-  vpc_id                   = module.vpc.id
+  vpc_id                   = module.vpc.vpc_id
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.public_subnets
 
