@@ -1,3 +1,4 @@
+# VPC with DNS hostnames enabled for EKS node registration
 resource "aws_vpc" "vpc" {
   cidr_block       = var.vpc_cidr_block
   enable_dns_hostnames = true 
@@ -5,7 +6,7 @@ resource "aws_vpc" "vpc" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-vpc" })
 }
 
-
+# Private subnets for EKS worker nodes 
 resource "aws_subnet" "private_subnets" {
   for_each = local.private_subnet_cidrs
 
@@ -16,7 +17,7 @@ resource "aws_subnet" "private_subnets" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-private-${each.key}" })
 }
 
-
+# Public subnets for load balancer
 resource "aws_subnet" "public_subnets" {
   for_each = local.public_subnet_cidrs
 
@@ -28,12 +29,14 @@ resource "aws_subnet" "public_subnets" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-public-${each.key}" })
 }
 
+# Internet gateway for outbound public internet access
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
   tags = merge(local.tags, { Name = "${local.name_prefix}-igw" })
 }
 
+# Regional NAT gateway so private subnets can reach the internet
 resource "aws_nat_gateway" "ngw" {
   vpc_id = aws_vpc.vpc.id
   availability_mode = "regional"
@@ -43,7 +46,7 @@ resource "aws_nat_gateway" "ngw" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-ngw" })
 }
 
-
+# Route table for public subnets: sends all traffic to the IGW
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.vpc.id
 
@@ -54,6 +57,7 @@ resource "aws_route_table" "public" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-public-rt" })
 }
 
+# Route table for private subnets: sends all traffic through the NAT gateway
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.vpc.id
 
@@ -64,7 +68,7 @@ resource "aws_route_table" "private" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-private-rt" })
 }
 
-
+# Route table associations
 resource "aws_route_table_association" "public" {
   for_each = aws_subnet.public_subnets
   subnet_id      = each.value.id
