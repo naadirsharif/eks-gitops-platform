@@ -1,6 +1,6 @@
 locals {
-  name   = "eks-lab"
-  domain = "lab.nashar.dev"
+  name_prefix   = "nashar-eks-gitops"
+  domain = "eks.nashar.dev"
   region = "eu-central-1" # Frankfurt region
 
 
@@ -8,5 +8,6 @@ locals {
     Environment = "lab"
     Project     = "eks-gitops-platform"
     Owner       = "Naadir"
+    ManagedBy   = "terraform"
   }
 }
