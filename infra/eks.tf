@@ -7,7 +7,8 @@ module "eks" {
   endpoint_public_access       = true
   endpoint_public_access_cidrs = ["0.0.0.0/0"]
 
-  enable_irsa = true
+  enable_irsa = true    ## IAM roles for service accounts
+                        ## Enables OIDC provider for pod-level AWS permissions
 
   vpc_id                   = module.vpc.id
   subnet_ids               = module.vpc.private_subnets
