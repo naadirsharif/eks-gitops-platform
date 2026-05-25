@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket       = "eks-tfstate-lab-bucket"
+    bucket       = "eks-tfstate-bucket"
     key          = "eks-gitops-platform"
     region       = "eu-central-1"
     encrypt      = true
