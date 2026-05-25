@@ -16,7 +16,7 @@ provider "aws" {
   region = "eu-central-1"
 }
 
-# S3 bucket for tfstate file
+# S3 bucket for storing tfstate file
 
 resource "aws_s3_bucket" "tf_state" {
   bucket           = "${local.name_prefix}-tfstate-bucket"
