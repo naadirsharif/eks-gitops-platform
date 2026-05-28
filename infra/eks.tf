@@ -10,8 +10,7 @@ resource "aws_eks_cluster" "cluster" {
   version  = "1.35"
 
   vpc_config {
-    vpc_id     = aws_vpc.vpc.id
-    subnet_ids = values(aws_subnet.private_subnets)[*].id # Subnets for workernodes 
+    subnet_ids = values(aws_subnet.private_subnets)[*].id 
 
     public_access_cidrs    = ["0.0.0.0/0"]
     endpoint_public_access = true
