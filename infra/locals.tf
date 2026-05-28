@@ -1,7 +1,7 @@
 locals {
-  name_prefix   = "${var.project_name}-${var.environment}"
+  name_prefix = "${var.project_name}-${var.environment}"
   full_domain = "${var.sub_domain}.${var.base_domain}"
-  region = var.region
+  region      = var.region
 
   tags = {
     Environment = var.environment

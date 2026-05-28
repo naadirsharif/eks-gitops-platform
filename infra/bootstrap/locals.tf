@@ -1,6 +1,6 @@
 locals {
   name_prefix = "nashar-eks-gitops"
-  region = "eu-central-1" 
+  region      = "eu-central-1"
 
   tags = {
     Environment = "lab"
