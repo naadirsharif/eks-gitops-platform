@@ -18,3 +18,6 @@ variable "sub_domain" {
 
 variable "project_name" {
 }
+
+variable "zone_id" {
+}

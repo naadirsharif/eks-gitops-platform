@@ -7,3 +7,4 @@ environment = "lab"
 
 base_domain = "nashar.dev"
 sub_domain = "eks"
+zone_id = "Z00208033796D8OPHFLPL"
