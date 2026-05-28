@@ -41,7 +41,7 @@ resource "aws_iam_role" "cert_manager" {
 ## Route53 permissions for cert-manager 
 ## source: https://cert-manager.io/docs/configuration/acme/dns01/route53/
 resource "aws_iam_policy" "cert_manager" {
-  name = "${local.name_prefix}-cert-manager"
+  name = "${local.name_prefix}-cert-manager-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -97,6 +97,48 @@ resource "aws_iam_role" "external_dns" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-external-dns" })
 }
 
+resource "aws_iam_policy" "external_dns" {
+  name = "${local.name_prefix}-external-dns-policy"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "route53:ChangeResourceRecordSets"
+        ],
+        "Resource" : [
+          "arn:aws:route53:::hostedzone/*"
+        ]
+      },
+      {
+        "Effect" : "Allow",
+        "Action" : [
+          "route53:ListHostedZones",
+          "route53:ListResourceRecordSets",
+          "route53:ListTagsForResource"
+        ],
+        "Resource" : [
+          "*"
+        ]
+      }
+    ]
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+## Community module setup (not used atm)
 
 # module "cert_manager_irsa_role" {
 #   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
