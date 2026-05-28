@@ -73,6 +73,30 @@ resource "aws_iam_role_policy_attachment" "cert_manager" {
   policy_arn = aws_iam_policy.cert_manager.arn
 }
 
+## External IRSA
+## Automatically creates Route53 DNS records when app is deployed
+resource "aws_iam_role" "external_dns" {
+  name = "${local.name_prefix}-external-dns"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.cluster.arn
+      }
+      Condition = {
+        StringEquals = {
+          "${aws_iam_openid_connect_provider.cluster.url}:sub" = "system:serviceaccount:external-dns:external-dns"
+        }
+      }
+    }]
+  })
+
+  tags = merge(local.tags, { Name = "${local.name_prefix}-external-dns" })
+}
+
 
 # module "cert_manager_irsa_role" {
 #   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
