@@ -73,7 +73,7 @@ resource "aws_iam_role_policy_attachment" "cert_manager" {
   policy_arn = aws_iam_policy.cert_manager.arn
 }
 
-## External IRSA
+## External DNS IRSA
 ## Automatically creates Route53 DNS records when app is deployed
 resource "aws_iam_role" "external_dns" {
   name = "${local.name_prefix}-external-dns"
