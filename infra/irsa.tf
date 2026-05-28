@@ -38,7 +38,7 @@ resource "aws_iam_role" "cert_manager" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-cert-manager" })
 }
 
-## Route53 permissions for cert-manager 
+## Route53 permissions for cert-manager pod
 ## source: https://cert-manager.io/docs/configuration/acme/dns01/route53/
 resource "aws_iam_policy" "cert_manager" {
   name = "${local.name_prefix}-cert-manager-policy"
@@ -97,6 +97,8 @@ resource "aws_iam_role" "external_dns" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-external-dns" })
 }
 
+## Route53 permissions for external DNS pod
+## source: https://repost.aws/knowledge-center/eks-set-up-externaldns
 resource "aws_iam_policy" "external_dns" {
   name = "${local.name_prefix}-external-dns-policy"
 
