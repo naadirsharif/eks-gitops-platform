@@ -22,7 +22,8 @@ resource "aws_eks_cluster" "cluster" {
   ]
 }
 
-# Cluster IAM Role
+
+# Cluster IAM Role | allows EKS control plane to manage AWS resources 
 resource "aws_iam_role" "cluster" {
   name = local.name_prefix
   assume_role_policy = jsonencode({
