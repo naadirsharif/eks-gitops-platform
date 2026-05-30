@@ -36,9 +36,16 @@ resource "aws_internet_gateway" "igw" {
   tags = merge(local.tags, { Name = "${local.name_prefix}-igw" })
 }
 
+# Elastic IP
+resource "aws_eip" "ngw" {
+  domain     = "vpc"
+  depends_on = [aws_internet_gateway.igw]
+}
+
 # Regional NAT gateway so private subnets can reach the internet
 resource "aws_nat_gateway" "ngw" {
-  vpc_id            = aws_vpc.vpc.id
+  allocation_id = aws_eip.ngw.id
+  subnet_id         = values(aws_subnet.public_subnets)[0].id
   availability_mode = "regional"
   connectivity_type = "public"
   depends_on        = [aws_internet_gateway.igw]
