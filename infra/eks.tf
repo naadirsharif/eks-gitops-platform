@@ -15,7 +15,13 @@ resource "aws_eks_cluster" "cluster" {
     public_access_cidrs    = ["0.0.0.0/0"]
     endpoint_public_access = true
   }
-
+  # Encrypt Kubernetes secrets 
+  encryption_config {
+    provider {
+      key_arn = aws_kms_key.eks.arn
+    }
+    resources = ["secrets"]
+  }
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling
   depends_on = [
     aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
@@ -46,6 +52,14 @@ resource "aws_iam_role" "cluster" {
 resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.cluster.name
+}
+
+# Key Management Service
+resource "aws_kms_key" "eks" {
+  description             = "EKS Secret Encryption"
+  deletion_window_in_days = 7
+
+  tags = merge(local.tags, { Name = "${local.name_prefix}-eks-kms" })
 }
 
 # EKS Node Group
