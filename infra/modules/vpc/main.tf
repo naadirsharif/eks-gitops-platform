@@ -3,37 +3,37 @@ resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr_block
   enable_dns_hostnames = true
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-vpc" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-vpc" })
 }
 
 # Private subnets for EKS worker nodes 
 resource "aws_subnet" "private_subnets" {
-  for_each = local.private_subnet_cidrs
+  for_each = var.private_subnet_cidrs
 
   vpc_id            = aws_vpc.vpc.id
   availability_zone = each.key
   cidr_block        = each.value
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-private-${each.key}" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-private-${each.key}" })
 }
 
 # Public subnets for load balancer
 resource "aws_subnet" "public_subnets" {
-  for_each = local.public_subnet_cidrs
+  for_each = var.public_subnet_cidrs
 
   vpc_id                  = aws_vpc.vpc.id
   availability_zone       = each.key
   cidr_block              = each.value
   map_public_ip_on_launch = true
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-public-${each.key}" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-public-${each.key}" })
 }
 
 # Internet gateway for outbound public internet access
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-igw" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-igw" })
 }
 
 # Elastic IP
@@ -50,7 +50,7 @@ resource "aws_nat_gateway" "ngw" {
   connectivity_type = "public"
   depends_on        = [aws_internet_gateway.igw]
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-ngw" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-ngw" })
 }
 
 # Route table for public subnets: sends all traffic to the IGW
@@ -61,7 +61,7 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
-  tags = merge(local.tags, { Name = "${local.name_prefix}-public-rt" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-public-rt" })
 }
 
 # Route table for private subnets: sends all traffic through the NAT gateway
@@ -72,7 +72,7 @@ resource "aws_route_table" "private" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_nat_gateway.ngw.id
   }
-  tags = merge(local.tags, { Name = "${local.name_prefix}-private-rt" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-private-rt" })
 }
 
 # Route table associations
