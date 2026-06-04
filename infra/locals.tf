@@ -1,3 +1,9 @@
+# Fetch available availability zones in the current region
+# based on the configured provider region
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 locals {
   name_prefix = "${var.project_name}-${var.environment}"
   full_domain = "${var.sub_domain}.${var.base_domain}"
@@ -26,4 +32,3 @@ locals {
   }
 }
 
-  
