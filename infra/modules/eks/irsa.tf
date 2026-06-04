@@ -9,7 +9,7 @@ resource "aws_iam_openid_connect_provider" "cluster" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.cluster.certificates[0].sha1_fingerprint]
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-oidc" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-oidc" })
 }
 
 
@@ -17,7 +17,7 @@ resource "aws_iam_openid_connect_provider" "cluster" {
 ## Allows cert-manager to create DNS records in Route53 for SSL validation
 
 resource "aws_iam_role" "cert_manager" {
-  name = "${local.name_prefix}-cert-manager"
+  name = "${var.name_prefix}-cert-manager"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -35,13 +35,13 @@ resource "aws_iam_role" "cert_manager" {
     }]
   })
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-cert-manager" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-cert-manager" })
 }
 
 ## Route53 permissions for cert-manager pod
 ## source: https://cert-manager.io/docs/configuration/acme/dns01/route53/
 resource "aws_iam_policy" "cert_manager" {
-  name = "${local.name_prefix}-cert-manager-policy"
+  name = "${var.name_prefix}-cert-manager-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -76,7 +76,7 @@ resource "aws_iam_role_policy_attachment" "cert_manager" {
 ## External DNS IRSA
 ## Automatically creates Route53 DNS records when app is deployed
 resource "aws_iam_role" "external_dns" {
-  name = "${local.name_prefix}-external-dns"
+  name = "${var.name_prefix}-external-dns"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -94,13 +94,13 @@ resource "aws_iam_role" "external_dns" {
     }]
   })
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-external-dns" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-external-dns" })
 }
 
 ## Route53 permissions for external DNS pod
 ## source: https://repost.aws/knowledge-center/eks-set-up-externaldns
 resource "aws_iam_policy" "external_dns" {
-  name = "${local.name_prefix}-external-dns-policy"
+  name = "${var.name_prefix}-external-dns-policy"
 
   policy = jsonencode({
     "Version" : "2012-10-17",

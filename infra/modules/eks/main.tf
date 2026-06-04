@@ -1,5 +1,5 @@
 resource "aws_eks_cluster" "cluster" {
-  name = "${local.name_prefix}-cluster"
+  name = "${var.name_prefix}-cluster"
 
 
   access_config {
@@ -31,7 +31,7 @@ resource "aws_eks_cluster" "cluster" {
 
 # Cluster IAM Role | allows EKS control plane to manage AWS resources 
 resource "aws_iam_role" "cluster" {
-  name = local.name_prefix
+  name = var.name_prefix
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -59,13 +59,13 @@ resource "aws_kms_key" "eks" {
   description             = "EKS Secret Encryption"
   deletion_window_in_days = 7
 
-  tags = merge(local.tags, { Name = "${local.name_prefix}-eks-kms" })
+  tags = merge(var.tags, { Name = "${var.name_prefix}-eks-kms" })
 }
 
 # EKS Node Group
 resource "aws_eks_node_group" "node_groups" {
   cluster_name    = aws_eks_cluster.cluster.name
-  node_group_name = "${local.name_prefix}-node-group"
+  node_group_name = "${var.name_prefix}-node-group"
   node_role_arn   = aws_iam_role.node_group.arn
   subnet_ids      = values(aws_subnet.private_subnets)[*].id
 
@@ -93,7 +93,7 @@ resource "aws_eks_node_group" "node_groups" {
 
 # Node Group IAM Role
 resource "aws_iam_role" "node_group" {
-  name = "${local.name_prefix}-node-group"
+  name = "${var.name_prefix}-node-group"
 
   assume_role_policy = jsonencode({
     Statement = [{
