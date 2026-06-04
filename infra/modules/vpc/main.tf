@@ -14,7 +14,10 @@ resource "aws_subnet" "private_subnets" {
   availability_zone = each.key
   cidr_block        = each.value
 
-  tags = merge(var.tags, { Name = "${var.name_prefix}-private-${each.key}" })
+  tags = merge(var.tags, { 
+    Name = "${var.name_prefix}-private-${each.key}" 
+    "kubernetes.io/role/internal-elb" = "1"
+  })
 }
 
 # Public subnets for load balancer
@@ -26,7 +29,10 @@ resource "aws_subnet" "public_subnets" {
   cidr_block              = each.value
   map_public_ip_on_launch = true
 
-  tags = merge(var.tags, { Name = "${var.name_prefix}-public-${each.key}" })
+  tags = merge(var.tags, {
+     Name = "${var.name_prefix}-public-${each.key}" 
+     "kubernetes.io/role/elb" = "1"
+  })
 }
 
 # Internet gateway for outbound public internet access
