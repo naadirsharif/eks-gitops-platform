@@ -1,23 +1,14 @@
-variable "region" {
+variable "name_prefix" {
+}
+
+variable "tags" {
 }
 
 variable "vpc_cidr_block" {
 }
 
-variable "owner" {
+variable "private_subnet_cidrs" {
 }
 
-variable "environment" {
-}
-
-variable "base_domain" {
-}
-
-variable "sub_domain" {
-}
-
-variable "project_name" {
-}
-
-variable "zone_id" {
+variable "public_subnet_cidrs" {
 }
