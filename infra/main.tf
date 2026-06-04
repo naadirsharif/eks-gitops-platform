@@ -15,4 +15,5 @@ module "eks" {
   tags                 = local.tags
   zone_id              = var.zone_id
   vpc_cidr_block       = var.vpc_cidr_block
+  private_subnet_ids   = module.vpc.private_subnet_ids
 }

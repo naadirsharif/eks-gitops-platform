@@ -10,7 +10,7 @@ resource "aws_eks_cluster" "cluster" {
   version  = "1.35"
 
   vpc_config {
-    subnet_ids = values(aws_subnet.private_subnets)[*].id 
+    subnet_ids = var.private_subnet_ids
 
     public_access_cidrs    = ["0.0.0.0/0"]
     endpoint_public_access = true
@@ -27,7 +27,6 @@ resource "aws_eks_cluster" "cluster" {
     aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
   ]
 }
-
 
 # Cluster IAM Role | allows EKS control plane to manage AWS resources 
 resource "aws_iam_role" "cluster" {
@@ -67,7 +66,7 @@ resource "aws_eks_node_group" "node_groups" {
   cluster_name    = aws_eks_cluster.cluster.name
   node_group_name = "${var.name_prefix}-node-group"
   node_role_arn   = aws_iam_role.node_group.arn
-  subnet_ids      = values(aws_subnet.private_subnets)[*].id
+  subnet_ids      = var.private_subnet_ids
 
   instance_types = ["t3a.large", "t3.large"]
 

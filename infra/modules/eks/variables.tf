@@ -12,3 +12,7 @@ variable "vpc_cidr_block" {
 
 variable "zone_id" {
 }
+
+variable "private_subnet_ids" {
+  type = list(string)
+}
