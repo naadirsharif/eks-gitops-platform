@@ -12,3 +12,18 @@ resource "helm_release" "nginx_ingress" {
 
   depends_on = [aws_eks_node_group.node_groups]
 }
+
+# Cert-Manager
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  version    = "v1.14.0"
+
+  create_namespace = true
+  namespace        = "cert-manager"
+
+  values = [file("${path.root}/../k8s/addons/cert-manager/values.yaml")]
+
+  depends_on = [aws_eks_node_group.node_groups]
+}
