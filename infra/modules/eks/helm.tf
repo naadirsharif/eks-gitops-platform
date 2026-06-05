@@ -23,7 +23,14 @@ resource "helm_release" "cert_manager" {
   create_namespace = true
   namespace        = "cert-manager"
 
-  values = [file("${path.root}/../k8s/addons/cert-manager/values.yaml")]
+   values = [
+    file("${path.root}/../k8s/addons/cert-manager/values.yaml"),
+    <<-EOT
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: "${aws_iam_role.cert_manager.arn}"
+    EOT
+  ]
 
   depends_on = [aws_eks_node_group.node_groups]
 }
