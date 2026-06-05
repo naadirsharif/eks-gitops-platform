@@ -14,8 +14,8 @@ resource "aws_subnet" "private_subnets" {
   availability_zone = each.key
   cidr_block        = each.value
 
-  tags = merge(var.tags, { 
-    Name = "${var.name_prefix}-private-${each.key}" 
+  tags = merge(var.tags, {
+    Name                              = "${var.name_prefix}-private-${each.key}"
     "kubernetes.io/role/internal-elb" = "1"
   })
 }
@@ -30,8 +30,8 @@ resource "aws_subnet" "public_subnets" {
   map_public_ip_on_launch = true
 
   tags = merge(var.tags, {
-     Name = "${var.name_prefix}-public-${each.key}" 
-     "kubernetes.io/role/elb" = "1"
+    Name                     = "${var.name_prefix}-public-${each.key}"
+    "kubernetes.io/role/elb" = "1"
   })
 }
 
@@ -50,7 +50,7 @@ resource "aws_eip" "ngw" {
 
 # Regional NAT gateway so private subnets can reach the internet
 resource "aws_nat_gateway" "ngw" {
-  allocation_id = aws_eip.ngw.id
+  allocation_id     = aws_eip.ngw.id
   subnet_id         = values(aws_subnet.public_subnets)[0].id
   availability_mode = "regional"
   connectivity_type = "public"

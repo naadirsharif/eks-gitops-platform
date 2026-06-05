@@ -9,11 +9,11 @@ module "vpc" {
 }
 
 module "eks" {
-  source               = "./modules/eks"
-  region               = var.region
-  name_prefix          = local.name_prefix
-  tags                 = local.tags
-  zone_id              = var.zone_id
-  vpc_cidr_block       = var.vpc_cidr_block
-  private_subnet_ids   = module.vpc.private_subnet_ids
+  source             = "./modules/eks"
+  region             = var.region
+  name_prefix        = local.name_prefix
+  tags               = local.tags
+  zone_id            = var.zone_id
+  vpc_cidr_block     = var.vpc_cidr_block
+  private_subnet_ids = module.vpc.private_subnet_ids
 }
