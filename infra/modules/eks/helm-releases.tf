@@ -50,6 +50,8 @@ resource "helm_release" "external_dns" {
     <<-EOT
     aws:
       region: "${var.region}"
+    domainFilters:
+      - "${var.base_domain}"
     serviceAccount:
       annotations:
         eks.amazonaws.com/role-arn: "${aws_iam_role.external_dns.arn}"

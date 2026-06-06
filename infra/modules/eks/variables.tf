@@ -16,3 +16,6 @@ variable "zone_id" {
 variable "private_subnet_ids" {
   type = list(string)
 }
+
+variable "base_domain" {
+}
