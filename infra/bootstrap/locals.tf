@@ -8,4 +8,6 @@ locals {
     Owner       = "Naadir"
     ManagedBy   = "terraform"
   }
+
+  github_repo = "naadirsharif/eks-gitops-platform"
 }

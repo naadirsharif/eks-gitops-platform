@@ -41,7 +41,7 @@ data "aws_iam_openid_connect_provider" "github" {
 
 # IAM Role für GitHub Actions
 resource "aws_iam_role" "github_actions" {
-  name = "github-actions-eks-gitops"
+  name = "${local.name_prefix}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -53,7 +53,7 @@ resource "aws_iam_role" "github_actions" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:naadirsharif/eks-gitops-platform:*"
+          "token.actions.githubusercontent.com:sub" = "repo:${local.github_repo}:*"
         }
       }
     }]
