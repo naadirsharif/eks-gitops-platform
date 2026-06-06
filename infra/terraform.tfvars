@@ -5,6 +5,6 @@ project_name = "eks-gitops-platform"
 owner        = "Naadir"
 environment  = "lab"
 
-base_domain = "nashar.dev"
+base_domain = "lab.nashar.dev"
 sub_domain  = "eks"
 zone_id     = "Z00208033796D8OPHFLPL"
