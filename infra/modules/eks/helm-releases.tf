@@ -48,6 +48,8 @@ resource "helm_release" "external_dns" {
    values = [
     file("${path.root}/../k8s/addons/external-dns/values.yaml"),
     <<-EOT
+    aws:
+      region: "${var.region}"
     serviceAccount:
       annotations:
         eks.amazonaws.com/role-arn: "${aws_iam_role.external_dns.arn}"
