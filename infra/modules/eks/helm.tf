@@ -34,3 +34,25 @@ resource "helm_release" "cert_manager" {
 
   depends_on = [aws_eks_node_group.node_groups]
 }
+
+# External-DNS
+resource "helm_release" "external_dns" {
+  name       = "external-dns"
+  repository = "https://kubernetes-sigs.github.io/external-dns/"
+  chart      = "external-dns"
+  version    = "1.21.1"
+
+  create_namespace = true
+  namespace        = "external-dns"
+
+   values = [
+    file("${path.root}/../k8s/addons/external-dns/values.yaml"),
+    <<-EOT
+    serviceAccount:
+      annotations:
+        eks.amazonaws.com/role-arn: "${aws_iam_role.external_dns.arn}"
+    EOT
+  ]
+
+  depends_on = [aws_eks_node_group.node_groups]
+}
