@@ -1,0 +1,4 @@
+provider: aws
+txtOwnerId: eks-gitops-platform
+domainFilters:
+  - lab.nashar.dev
