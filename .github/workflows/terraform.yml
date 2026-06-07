@@ -30,7 +30,7 @@ jobs:
               uses: aws-actions/configure-aws-credentials@v4
               with:
                 aws-region: ${{ vars.AWS_REGION }}
-                role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                role-to-assume: ${{ secrets.OIDC_ARN }}
 
             - name: Setup Terraform        
               uses: hashicorp/setup-terraform@v3
@@ -52,6 +52,7 @@ jobs:
               run: terraform plan
               continue-on-error: false 
     
+
     apply:
         runs-on: ubuntu-latest
         permissions:
@@ -70,7 +71,7 @@ jobs:
                uses: aws-actions/configure-aws-credentials@v4
                with:
                  aws-region: ${{ vars.AWS_REGION }}
-                 role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+                 role-to-assume: ${{ secrets.OIDC_ARN }}
 
              - name: Setup Terraform        
                uses: hashicorp/setup-terraform@v3
