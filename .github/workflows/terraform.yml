@@ -1,4 +1,4 @@
-name: terraform plan & apply 
+name: Infrastructure | Terraform Plan & Apply / Checkov Security Scan
 
 on:
     workflow_dispatch:
