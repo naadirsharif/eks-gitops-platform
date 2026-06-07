@@ -1,0 +1,93 @@
+name: terraform plan & apply 
+
+on:
+    workflow_dispatch:
+    # push:
+    #     branches:
+    #         main
+    #     paths: 
+    #         - 'infra/**'
+
+
+jobs:   
+    plan: 
+        runs-on: ubuntu-latest 
+        permissions:
+            id-token: write 
+            contents: read 
+        
+        steps: 
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Checkov Scan
+              uses: bridgecrewio/checkov-action@v12
+              with:
+                directory: infra/
+                soft_fail: true
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                aws-region: ${{ vars.AWS_REGION }}
+                role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+            - name: Setup Terraform        
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Terraform Init
+              working-directory: infra
+              run: terraform init
+
+            - name: Terraform Format Check
+              working-directory: infra
+              run: terraform fmt -check -recursive
+              
+            - name: Terraform Validate
+              working-directory: infra
+              run: terraform validate
+
+            - name: Terraform Plan
+              working-directory: infra
+              run: terraform plan
+              continue-on-error: false 
+    
+    apply:
+        runs-on: ubuntu-latest
+        permissions:
+            id-token: write 
+            contents: read 
+
+        needs: plan
+        environment:
+            name: production
+
+        steps: 
+             - name: Checkout
+               uses: actions/checkout@v4
+
+             - name: Configure AWS Credentials
+               uses: aws-actions/configure-aws-credentials@v4
+               with:
+                 aws-region: ${{ vars.AWS_REGION }}
+                 role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+
+             - name: Setup Terraform        
+               uses: hashicorp/setup-terraform@v3
+ 
+             - name: Terraform Init        
+               working-directory: infra
+               run: terraform init
+
+             - name: Terraform Apply
+               working-directory: infra
+               run: terraform apply -auto-approve
+               id: apply
+
+             - name: Apply Failed
+               if: failure() && steps.apply.outcome == 'failure'
+               run: |
+                    echo "Terraform Apply failed!"
+                    echo "Check the logs above for details"
+                    exit 1
+            
