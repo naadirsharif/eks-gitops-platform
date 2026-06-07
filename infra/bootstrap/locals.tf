@@ -10,4 +10,6 @@ locals {
   }
 
   github_repo = "naadirsharif/eks-gitops-platform"
+
+  ecr_repo = "eks-gitops-platform/it-tools"
 }
