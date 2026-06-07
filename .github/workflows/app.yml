@@ -1,0 +1,55 @@
+name: App | Docker Build / Trivy Scan / ECR Push
+
+on: 
+    workflow_dispatch:   
+#   push:
+#       branches:
+#         - main       
+#       paths:            
+#           - 'app/**'
+#           - 'app/Dockerfile'
+    
+jobs:
+    build:
+        name: Build the Image and deploy it to ECR Repository
+        runs-on: ubuntu-latest 
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4
+              with:
+                role-to-assume: ${{ secrets.OIDC_ARN }}
+                aws-region: ${{ vars.AWS_REGION }}
+            
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
+
+            - name: Build Docker image
+              id: build-image
+              env:
+                GITHUB_SHA: ${{ github.sha }}
+                ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+              run: |
+                docker build \
+                -f app/Dockerfile \
+                -t "${ECR_REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}" \
+                .
+
+                echo "image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}" >> $GITHUB_OUTPUT
+            
+            - name: Trivy scan (security check)
+              uses: aquasecurity/trivy-action@v0.24.0
+              with:
+                image-ref: "${{ steps.build-image.outputs.image }}"
+                format: table
+                exit-code: 0
+                severity: CRITICAL
+
+            - name: Push Docker image to ECR
+              run: |
+                docker push "${{ steps.build-image.outputs.image }}"
