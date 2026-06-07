@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: it-tools-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+    external-dns.alpha.kubernetes.io/hostname: eks.lab.nashar.dev
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - eks.lab.nashar.dev
+    secretName: it-tools-tls
+  rules:
+  - host: eks.lab.nashar.dev
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: it-tools-svc
+            port:
+              number: 80
