@@ -54,7 +54,7 @@ jobs:
               run: |
                 docker push "${{ steps.build-image.outputs.image }}"
 
-            - name: Update Image Tag in k8s/apps/it-tools/deployment.yaml
+            - name: Update Image Tag in deployment manifest
               env:
                 IMAGE: ${{ steps.build-image.outputs.image }} 
               run: |
