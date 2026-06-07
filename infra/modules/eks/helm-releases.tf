@@ -60,3 +60,20 @@ resource "helm_release" "external_dns" {
 
   depends_on = [aws_eks_node_group.node_groups]
 }
+
+# ArgoCD
+resource "helm_release" "argocd" {
+  name       = "argocd"
+  repository = "https://argoproj.github.io/argo-helm"
+  chart      = "argo-cd"
+  version    = "9.5.19"
+
+  create_namespace = true
+  namespace        = "argocd"
+
+   values = [
+    file("${path.root}/../k8s/addons/argocd/values.yaml"),
+  ]
+
+  depends_on = [aws_eks_node_group.node_groups]
+}
