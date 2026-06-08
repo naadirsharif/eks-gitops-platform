@@ -64,3 +64,6 @@ jobs:
                 git add k8s/apps/it-tools/deployment.yaml
                 git commit -m "chore: update image tag to ${{ github.sha }}"
                 git push
+
+            - name: Apply ArgoCD Application
+              run: kubectl apply -f k8s/argocd/applications/it-tools.yaml
