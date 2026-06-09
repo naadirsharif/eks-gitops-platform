@@ -1,0 +1,6 @@
+grafana:
+  adminPassword: 
+
+prometheus:
+  prometheusSpec:
+    retention: 7d  
