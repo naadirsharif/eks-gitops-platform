@@ -77,3 +77,16 @@ resource "helm_release" "argocd" {
 
   depends_on = [aws_eks_node_group.node_groups]
 }
+
+# Monitoring | Prometheus & Grafana 
+resource "helm_release" "monitoring" {
+  name       = "monitoring"
+  repository = "https://prometheus-community.github.io/helm-charts"
+  chart      = "kube-prometheus-stack"
+  namespace  = "monitoring"
+  create_namespace = true
+
+  values = [file("${path.root}/../k8s/addons/monitoring/values.yaml")]
+
+  depends_on = [aws_eks_node_group.node_groups]
+}
