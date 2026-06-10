@@ -4,9 +4,11 @@ A production grade Kubernetes platform on AWS EKS. The goal here wasn't just to 
 
 The app running on top is [IT Tools](https://github.com/CorentinTh/it-tools), a lightweight collection of developer utilities built with Vue.js. The app is intentionally simple. It's not the focus. It just gives me something real to route traffic to, secure with HTTPS, and ship through the pipeline. The platform underneath is the actual project.
 
-Live at **https://eks.lab.nashar.dev**
+During the build it was served over HTTPS at `https://eks.lab.nashar.dev`. The infrastructure gets torn down between sessions to keep costs down, so see the screenshots below for the running setup.
 
 ## Architecture
+
+![Architecture Diagram](docs/architecture.png)
 
 Traffic comes in through a single Network Load Balancer that AWS provisions automatically when the NGINX Ingress Controller gets deployed. From there NGINX takes over the HTTP routing inside the cluster and forwards requests to the right service. The worker nodes sit in private subnets across three availability zones. Only the load balancer lives in the public subnets, so nothing in the cluster is directly exposed to the internet.
 
@@ -103,54 +105,6 @@ Both pipelines authenticate to AWS through GitHub OIDC, so there are no static c
 
 ## Deployment
 
-The setup runs in two stages. The bootstrap is a one time thing that creates the resources Terraform itself needs before it can manage anything else.
+The setup runs in two stages: a one time bootstrap that creates the resources Terraform itself needs (S3 state backend, ECR, GitHub OIDC), then the main infrastructure and add-ons. ArgoCD takes over deployments from there.
 
-**1. Bootstrap**
-
-Creates the S3 bucket for Terraform state, the ECR repository for the app image, and the GitHub OIDC provider and role for CI/CD.
-
-```bash
-cd infra/bootstrap
-terraform init
-terraform apply
-```
-
-**2. Infrastructure**
-
-Provisions the VPC, the EKS cluster and node group, IAM roles, the OIDC provider for IRSA, and installs all the cluster add-ons through the Helm provider.
-
-```bash
-cd infra
-terraform init
-terraform apply
-```
-
-**3. Connect to the cluster**
-
-```bash
-aws eks update-kubeconfig --name nashar-eks-gitops-lab-cluster --region eu-central-1
-```
-
-**4. Bootstrap ArgoCD applications**
-
-Apply the ArgoCD Application manifests once. After this ArgoCD takes over and keeps everything in sync with Git.
-
-```bash
-kubectl apply -f k8s/argocd/applications/
-```
-
-Once everything is up, the app is reachable at https://eks.lab.nashar.dev with a valid certificate, the DNS record created automatically, and ArgoCD showing everything healthy and in sync.
-
-## Teardown
-
-Order matters here. The Kubernetes workloads create AWS resources like the load balancer and DNS records that Terraform doesn't track, so those need to go first.
-
-```bash
-kubectl delete -f k8s/argocd/applications/
-helm uninstall ingress-nginx -n ingress-nginx
-helm uninstall cert-manager -n cert-manager
-helm uninstall external-dns -n external-dns
-
-cd infra
-terraform destroy
-```
+Full step by step deployment and teardown guide coming soon.
