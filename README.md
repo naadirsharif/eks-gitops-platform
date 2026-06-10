@@ -37,8 +37,6 @@ During the build it was served over HTTPS at `https://eks.lab.nashar.dev`. The i
 
 ## Architecture
 
-![Architecture Diagram](docs/architecture.png)
-
 Traffic comes in through a single Network Load Balancer that AWS provisions automatically when the NGINX Ingress Controller is deployed. NGINX handles the HTTP routing inside the cluster and forwards each request to the right service. Worker nodes sit in private subnets across three availability zones, and only the load balancer lives in the public subnets, so nothing in the cluster is directly exposed to the internet.
 
 DNS and certificates are fully hands off. When an Ingress is created, external-dns picks it up and writes the matching record into Route53, while cert-manager requests a certificate from Let's Encrypt and proves domain ownership through a DNS challenge, also in Route53. Both reach AWS through IRSA, so each pod only gets the exact permissions it needs.
