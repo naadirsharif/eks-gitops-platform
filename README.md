@@ -1,89 +1,73 @@
 # EKS GitOps Platform
 
-A production grade Kubernetes platform on AWS EKS. The goal here wasn't just to get an app running in a cluster. It was to build the full platform around it, the way you'd actually set things up at a real company. Infrastructure as code, automatic certificates and DNS, GitOps deployments, monitoring, and proper CI/CD with security scanning.
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![EKS](https://img.shields.io/badge/Amazon_EKS-FF9900?style=for-the-badge&logo=amazon-eks&logoColor=white)
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+![Helm](https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white)
+![ArgoCD](https://img.shields.io/badge/ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
-The app running on top is [IT Tools](https://github.com/CorentinTh/it-tools), a lightweight collection of developer utilities built with Vue.js. The app is intentionally simple. It's not the focus. It just gives me something real to route traffic to, secure with HTTPS, and ship through the pipeline. The platform underneath is the actual project.
+> A production grade Kubernetes platform on AWS EKS, built the way you'd actually set things up at a real company.
 
-During the build it was served over HTTPS at `https://eks.lab.nashar.dev`. The infrastructure gets torn down between sessions to keep costs down, so see the screenshots below for the running setup.
+The goal here wasn't just to get an app running in a cluster. It was to build the full platform around it. Infrastructure as code, automatic certificates and DNS, GitOps deployments, monitoring, and a CI/CD setup with security scanning built in.
+
+The app on top is [IT Tools](https://github.com/CorentinTh/it-tools), a lightweight set of developer utilities built with Vue.js. It's intentionally simple and not the focus. It just gives me something real to route traffic to, secure with HTTPS, and ship through the pipeline. The platform underneath is the actual project.
+
+During the build it was served over HTTPS at `https://eks.lab.nashar.dev`. The infrastructure gets torn down between sessions to keep costs down, so the screenshots below show the running setup.
+
+---
+
+## Highlights
+
+| | |
+|---|---|
+| 🧱 **Custom Terraform modules** | VPC and EKS written from scratch, no community modules |
+| 🔑 **Zero static credentials** | CI/CD authenticates to AWS through GitHub OIDC |
+| 🛡️ **Least privilege by default** | Pod level AWS access via IRSA, not broad node roles |
+| 🚪 **Single entry point** | One NLB serves the whole cluster through NGINX Ingress |
+| 🔒 **Automated TLS and DNS** | cert-manager and external-dns, no manual Route53 steps |
+| 🔁 **GitOps reconciliation** | ArgoCD keeps the cluster in sync with Git |
+| ✅ **Security gates in CI/CD** | Checkov on infra, Trivy on images, manual approval on apply |
+| 📦 **Multi-stage image** | _image size to be added after deployment_ |
+| ⚡ **Full stack provisioned** | _resource count / deploy time to be added after deployment_ |
+
+---
 
 ## Architecture
 
-Traffic comes in through a single Network Load Balancer that AWS provisions automatically when the NGINX Ingress Controller gets deployed. From there NGINX takes over the HTTP routing inside the cluster and forwards requests to the right service. The worker nodes sit in private subnets across three availability zones. Only the load balancer lives in the public subnets, so nothing in the cluster is directly exposed to the internet.
+![Architecture Diagram](docs/architecture.png)
 
-DNS and certificates are handled without any manual steps. When an Ingress gets created, external-dns picks it up and creates the matching record in Route53, and cert-manager requests a certificate from Let's Encrypt and proves domain ownership through a DNS challenge in Route53. Both of them talk to AWS using IRSA, so each pod only gets the permissions it actually needs instead of handing broad access to the whole node.
+Traffic comes in through a single Network Load Balancer that AWS provisions automatically when the NGINX Ingress Controller is deployed. NGINX handles the HTTP routing inside the cluster and forwards each request to the right service. Worker nodes sit in private subnets across three availability zones, and only the load balancer lives in the public subnets, so nothing in the cluster is directly exposed to the internet.
+
+DNS and certificates are fully hands off. When an Ingress is created, external-dns picks it up and writes the matching record into Route53, while cert-manager requests a certificate from Let's Encrypt and proves domain ownership through a DNS challenge, also in Route53. Both reach AWS through IRSA, so each pod only gets the exact permissions it needs.
+
+---
 
 ## Key Decisions
 
-A few choices here were deliberate, and they're worth explaining because they shaped how the whole thing fits together.
+The choices below were deliberate, and they shaped how the whole thing fits together.
 
-**Custom Terraform modules instead of community ones.** I wrote the VPC and EKS modules from scratch rather than pulling in the popular community modules. Those modules are great, but they hide a lot. Writing my own meant I actually had to understand how the cluster, the OIDC provider, the node groups and the networking all connect. If something breaks, I know exactly where to look.
+**Custom Terraform modules over community ones.**
+I wrote the VPC and EKS modules myself instead of pulling in the popular community modules. Those modules are solid, but they hide a lot. Writing my own forced me to understand how the cluster, the OIDC provider, the node groups and the networking actually connect. If something breaks, I know where to look.
 
-**NLB instead of ALB.** Since NGINX Ingress already handles all the HTTP routing inside the cluster, putting an ALB in front would just duplicate work that NGINX is already doing. A Network Load Balancer sits at layer 4 and passes traffic straight through to NGINX, which keeps things simpler and cheaper. One load balancer for everything instead of one per service.
+**NLB instead of ALB.**
+NGINX Ingress already does all the HTTP routing inside the cluster, so an ALB in front would just duplicate that work. A Network Load Balancer sits at layer 4 and passes traffic straight through to NGINX. Simpler, cheaper, and one load balancer for everything instead of one per service.
 
-**IRSA for pod permissions.** Rather than giving the worker nodes broad IAM permissions that every pod would inherit, each workload that needs AWS access gets its own role through IAM Roles for Service Accounts. cert-manager can touch Route53. external-dns can touch Route53. Nothing else can. This keeps the blast radius small and makes the trust boundaries obvious.
+**IRSA for pod permissions.**
+Instead of giving the nodes broad IAM permissions that every pod inherits, each workload that needs AWS access gets its own role through IAM Roles for Service Accounts. cert-manager and external-dns can touch Route53. Nothing else can. Small blast radius, clear trust boundaries.
 
-**S3 backend with native locking.** Terraform state lives in S3. I used the native `use_lockfile` locking that came in Terraform 1.10 instead of the older DynamoDB approach, so there's one less moving piece to manage.
+**S3 backend with native locking.**
+State lives in S3 using the native `use_lockfile` locking from Terraform 1.10, so there's no separate DynamoDB table to manage.
 
-**GitHub OIDC for CI/CD.** The pipelines authenticate to AWS through OIDC, so there are no long lived access keys sitting in GitHub secrets. GitHub hands each pipeline run a short lived token, AWS verifies it, and the trust policy is locked down to this specific repo.
+**GitHub OIDC for CI/CD.**
+The pipelines get short lived tokens from GitHub instead of storing long lived AWS keys. The trust policy is locked to this specific repo, so a fork can't assume the role.
 
-**ArgoCD for deployments.** The CI/CD pipeline never runs `kubectl apply` directly. It builds the image, scans it, pushes it to ECR, and updates the image tag in Git. ArgoCD watches the repo and reconciles the cluster to match. Git is the single source of truth, and if anyone changes something manually in the cluster, ArgoCD pulls it back in line.
+**ArgoCD over direct kubectl.**
+The pipeline never runs `kubectl apply`. It builds the image, scans it, pushes to ECR, and updates the image tag in Git. ArgoCD watches the repo and reconciles the cluster. Git is the source of truth, and manual changes get pulled back in line automatically.
 
-## Repository Structure
-
-```
-eks-gitops-platform/
-│
-├── .github/
-│   └── workflows/
-│       ├── terraform.yml     # Infra pipeline: Checkov, plan, manual approval, apply
-│       └── app.yml           # App pipeline: build, Trivy scan, ECR push, update tag
-│
-├── app/
-│   ├── Dockerfile            # Multi-stage build (node builder + nginx runtime)
-│   ├── .dockerignore
-│   └── it-tools/             # The IT Tools application source
-│
-├── infra/
-│   ├── bootstrap/            # One-time setup: S3 state backend, ECR, GitHub OIDC
-│   │   ├── main.tf
-│   │   └── locals.tf
-│   │
-│   ├── main.tf               # Module calls
-│   ├── variables.tf
-│   ├── outputs.tf
-│   ├── locals.tf
-│   ├── providers.tf          # AWS and Helm providers
-│   │
-│   └── modules/
-│       ├── vpc/              # Custom VPC: subnets, IGW, NAT, route tables
-│       └── eks/              # Custom EKS: cluster, node group, IAM, OIDC, IRSA, Helm
-│
-├── k8s/
-│   ├── addons/               # Helm values for cluster add-ons
-│   │   ├── nginx-ingress/
-│   │   ├── cert-manager/     # values + ClusterIssuer
-│   │   ├── external-dns/
-│   │   ├── argocd/
-│   │   └── monitoring/
-│   │
-│   ├── apps/
-│   │   └── it-tools/         # Deployment, service, ingress manifests
-│   │
-│   └── argocd/
-│       └── applications/     # ArgoCD Application manifests
-│
-└── README.md
-```
-
-## CI/CD
-
-There are two pipelines and they do different jobs.
-
-The **Terraform pipeline** handles the infrastructure. It runs Checkov to catch security misconfigurations in the Terraform code, checks formatting, validates, and runs a plan. The apply step sits behind a manual approval gate, so nothing changes in AWS until I sign off on the plan. The two jobs are split so apply only runs if plan succeeds first.
-
-The **app pipeline** handles IT Tools. It builds the Docker image, scans it with Trivy for vulnerabilities, pushes it to ECR tagged with the Git commit SHA, and then updates the image tag in the deployment manifest and commits that back to the repo. That last commit is what triggers ArgoCD to roll out the new version. The pipeline itself never deploys anything. It just builds, scans, pushes, and points ArgoCD at the new image.
-
-Both pipelines authenticate to AWS through GitHub OIDC, so there are no static credentials anywhere in the repo.
+---
 
 ## Stack
 
@@ -98,11 +82,67 @@ Both pipelines authenticate to AWS through GitHub OIDC, so there are no static c
 | CI/CD | GitHub Actions |
 | Security scanning | Checkov (Terraform), Trivy (images) |
 | Monitoring | Prometheus + Grafana (kube-prometheus-stack) |
-| Container registry | Amazon ECR |
+| Registry | Amazon ECR |
 | App | IT Tools (Vue.js) |
+
+---
+
+## Repository Structure
+
+```
+eks-gitops-platform/
+│
+├── .github/workflows/
+│   ├── terraform.yml         # Infra: Checkov, plan, manual approval, apply
+│   └── app.yml               # App: build, Trivy scan, ECR push, update tag
+│
+├── app/
+│   ├── Dockerfile            # Multi-stage (node builder + nginx runtime)
+│   └── it-tools/             # IT Tools source
+│
+├── infra/
+│   ├── bootstrap/            # One-time: S3 state, ECR, GitHub OIDC
+│   ├── main.tf               # Module calls
+│   ├── providers.tf          # AWS + Helm providers
+│   └── modules/
+│       ├── vpc/              # Subnets, IGW, NAT, route tables
+│       └── eks/              # Cluster, node group, IAM, OIDC, IRSA, Helm
+│
+├── k8s/
+│   ├── addons/               # Helm values for cluster add-ons
+│   │   ├── nginx-ingress/
+│   │   ├── cert-manager/     # values + ClusterIssuer
+│   │   ├── external-dns/
+│   │   ├── argocd/
+│   │   └── monitoring/
+│   ├── apps/it-tools/        # Deployment, service, ingress
+│   └── argocd/applications/  # ArgoCD Application manifests
+│
+└── README.md
+```
+
+---
+
+## CI/CD
+
+Two pipelines, two jobs.
+
+**Terraform pipeline** handles the infrastructure. It runs Checkov to catch security misconfigurations, checks formatting, validates, and runs a plan. The apply step sits behind a manual approval gate, so nothing changes in AWS until I sign off. Plan and apply are split, so apply only runs if plan succeeds.
+
+**App pipeline** handles IT Tools. It builds the image, scans it with Trivy, pushes to ECR tagged with the Git commit SHA, then updates the image tag in the deployment manifest and commits that back. That commit is what triggers ArgoCD to roll out the new version. The pipeline itself never deploys. It builds, scans, pushes, and points ArgoCD at the new image.
+
+Both authenticate to AWS through GitHub OIDC. No static credentials anywhere.
+
+---
+
+## Demo
+
+_Screenshots and a short walkthrough video coming after deployment: the app over HTTPS, the ArgoCD dashboard healthy and in sync, and Grafana dashboards showing cluster metrics._
+
+---
 
 ## Deployment
 
 The setup runs in two stages: a one time bootstrap that creates the resources Terraform itself needs (S3 state backend, ECR, GitHub OIDC), then the main infrastructure and add-ons. ArgoCD takes over deployments from there.
 
-Full step by step deployment and teardown guide coming soon.
+_Full step by step deployment and teardown guide coming soon._
