@@ -81,6 +81,8 @@ jobs:
                run: terraform init
 
              - name: Terraform Apply
+               env:
+                TF_VAR_grafana_admin_password: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
                working-directory: infra
                run: terraform apply -auto-approve
                id: apply

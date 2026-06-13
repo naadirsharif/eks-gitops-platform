@@ -19,3 +19,8 @@ variable "private_subnet_ids" {
 
 variable "base_domain" {
 }
+
+variable "grafana_admin_password" {
+  type      = string
+  sensitive = true
+}

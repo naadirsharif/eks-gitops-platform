@@ -86,7 +86,13 @@ resource "helm_release" "monitoring" {
   namespace  = "monitoring"
   create_namespace = true
 
-  values = [file("${path.root}/../k8s/addons/monitoring/values.yaml")]
+  values = [
+    file("${path.root}/../k8s/addons/monitoring/values.yaml"),
+    <<-EOT
+    grafana:
+      adminPassword: "${var.grafana_admin_password}"
+    EOT
+  ]
 
   depends_on = [aws_eks_node_group.node_groups]
 }
