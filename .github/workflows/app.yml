@@ -70,6 +70,9 @@ jobs:
                 git add k8s/apps/it-tools/deployment.yaml
                 git commit -m "chore: update image tag to ${{ github.sha }}"
                 git push
+                
+            - name: Configure kubeconfig
+              run: aws eks update-kubeconfig --name ${{ vars.EKS_CLUSTER_NAME }} --region ${{ vars.AWS_REGION }}
 
             - name: Apply ArgoCD Application
               run: kubectl apply -f k8s/argocd/applications/it-tools.yaml
