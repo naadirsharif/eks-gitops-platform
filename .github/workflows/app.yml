@@ -11,6 +11,10 @@ on:
     
 jobs:
     build:
+        permissions:
+          id-token: write
+          contents: write  
+
         name: Build the Image and deploy it to ECR Repository
         runs-on: ubuntu-latest 
 
@@ -57,10 +61,12 @@ jobs:
             - name: Update Image Tag in deployment manifest
               env:
                 IMAGE: ${{ steps.build-image.outputs.image }} 
+                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                 sed -i "s|image:.*|image: ${IMAGE}|" k8s/apps/it-tools/deployment.yaml
                 git config user.name "github-actions"
                 git config user.email "github-actions@github.com"
+                git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
                 git add k8s/apps/it-tools/deployment.yaml
                 git commit -m "chore: update image tag to ${{ github.sha }}"
                 git push
