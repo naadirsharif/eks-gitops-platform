@@ -58,6 +58,11 @@ resource "aws_eks_node_group" "node_groups" {
     max_unavailable = 1
   }
 
+   lifecycle {
+    replace_triggered_by = [aws_eks_cluster.cluster.id]
+  }
+
+
   # Ensure that IAM Role permissions are created before and deleted after EKS Node Group handling
   depends_on = [
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
