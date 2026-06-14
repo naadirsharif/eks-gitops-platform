@@ -48,9 +48,9 @@ resource "aws_eks_node_group" "node_groups" {
   disk_size = "50"
 
   scaling_config {
-    desired_size = 1 # current number of nodes
-    max_size     = 2 # maximum nodes when scaling up
-    min_size     = 1 # minimum nodes always running
+    desired_size = var.node_desired_size # current number of nodes
+    max_size     = var.node_max_size # maximum nodes when scaling up
+    min_size     = var.node_min_size # minimum nodes always running
   }
 
   update_config {
