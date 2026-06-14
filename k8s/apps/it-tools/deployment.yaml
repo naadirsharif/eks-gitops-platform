@@ -16,6 +16,6 @@ spec:
     spec: 
       containers: 
       - name: it-tools 
-        image: PLACEHOLDER # Gets overwritten by CI/CD  
+        image: 530193444530.dkr.ecr.eu-central-1.amazonaws.com/eks-gitops-platform/it-tools:f4d201777aba5c60e4aae5f759a0fc6dc040bec8
       ports: 
       - containerPort: 80
