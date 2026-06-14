@@ -1,21 +1,21 @@
 apiVersion: apps/v1
-kind: Deployment 
+kind: Deployment
 metadata:
   name: it-tools-deployment
-  labels: 
+  labels:
     app: it-tools
-spec: 
+spec:
   replicas: 1
-  selector: 
-    matchLabels: 
-      app: it-tools 
-  template: 
-    metadata: 
-      labels: 
-        app: it-tools 
-    spec: 
-      containers: 
-      - name: it-tools 
+  selector:
+    matchLabels:
+      app: it-tools
+  template:
+    metadata:
+      labels:
+        app: it-tools
+    spec:
+      containers:
+      - name: it-tools
         image: 530193444530.dkr.ecr.eu-central-1.amazonaws.com/eks-gitops-platform/it-tools:f4d201777aba5c60e4aae5f759a0fc6dc040bec8
-      ports: 
-      - containerPort: 80
+        ports:
+        - containerPort: 80
