@@ -42,7 +42,7 @@ jobs:
                 docker build \
                 -f app/Dockerfile \
                 -t "${ECR_REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}" \
-                .
+                app
 
                 echo "image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${GITHUB_SHA}" >> $GITHUB_OUTPUT
             
