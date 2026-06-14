@@ -49,6 +49,8 @@ jobs:
 
             - name: Terraform Plan
               working-directory: infra
+              env:
+                TF_VAR_grafana_admin_password: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
               run: terraform plan
               continue-on-error: false 
     
