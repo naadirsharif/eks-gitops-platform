@@ -38,4 +38,4 @@ spec:
     kind: Certificate
     jsonPointers:
       - /spec
-      - /statusg
+      - /status
