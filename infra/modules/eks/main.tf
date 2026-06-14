@@ -58,7 +58,7 @@ resource "aws_eks_node_group" "node_groups" {
     max_unavailable = 1
   }
 
-   lifecycle {
+  lifecycle {
     replace_triggered_by = [aws_eks_cluster.cluster.id]
   }
 
