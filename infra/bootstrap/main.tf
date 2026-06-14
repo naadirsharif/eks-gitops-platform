@@ -35,7 +35,7 @@ resource "aws_s3_bucket_public_access_block" "tf_state" {
 }
 
 resource "aws_ecr_repository" "app" {
-  name                 = "${local.ecr_repo}"
+  name                 = local.ecr_repo
   image_tag_mutability = "IMMUTABLE"
 
   image_scanning_configuration {
@@ -52,7 +52,7 @@ data "aws_iam_openid_connect_provider" "github" {
 
 # IAM Role für GitHub Actions
 resource "aws_iam_role" "github_actions" {
-  name = "${local.name_prefix}"
+  name = local.name_prefix
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

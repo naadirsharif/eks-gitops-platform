@@ -23,7 +23,7 @@ resource "helm_release" "cert_manager" {
   create_namespace = true
   namespace        = "cert-manager"
 
-   values = [
+  values = [
     file("${path.root}/../k8s/addons/cert-manager/values.yaml"),
     <<-EOT
     serviceAccount:
@@ -45,7 +45,7 @@ resource "helm_release" "external_dns" {
   create_namespace = true
   namespace        = "external-dns"
 
-   values = [
+  values = [
     file("${path.root}/../k8s/addons/external-dns/values.yaml"),
     <<-EOT
     aws:
@@ -71,7 +71,7 @@ resource "helm_release" "argocd" {
   create_namespace = true
   namespace        = "argocd"
 
-   values = [
+  values = [
     file("${path.root}/../k8s/addons/argocd/values.yaml"),
   ]
 
@@ -80,10 +80,10 @@ resource "helm_release" "argocd" {
 
 # Monitoring | Prometheus & Grafana 
 resource "helm_release" "monitoring" {
-  name       = "monitoring"
-  repository = "https://prometheus-community.github.io/helm-charts"
-  chart      = "kube-prometheus-stack"
-  namespace  = "monitoring"
+  name             = "monitoring"
+  repository       = "https://prometheus-community.github.io/helm-charts"
+  chart            = "kube-prometheus-stack"
+  namespace        = "monitoring"
   create_namespace = true
 
   values = [

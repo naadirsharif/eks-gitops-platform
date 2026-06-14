@@ -29,13 +29,13 @@ variable "grafana_admin_password" {
 
 # Node Scaling config
 variable "node_desired_size" {
-  type    = number
+  type = number
 }
 
 variable "node_max_size" {
-  type    = number
+  type = number
 }
 
 variable "node_min_size" {
-  type    = number
+  type = number
 }
