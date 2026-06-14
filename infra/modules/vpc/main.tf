@@ -52,7 +52,6 @@ resource "aws_eip" "ngw" {
 resource "aws_nat_gateway" "ngw" {
   allocation_id     = aws_eip.ngw.id
   subnet_id         = values(aws_subnet.public_subnets)[0].id
-  availability_mode = "regional"
   connectivity_type = "public"
   depends_on        = [aws_internet_gateway.igw]
 
