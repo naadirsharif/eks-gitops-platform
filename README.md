@@ -137,7 +137,14 @@ Both authenticate to AWS through GitHub OIDC. No static credentials anywhere.
 
 ## Demo
 
-_Screenshots and a short walkthrough video coming after deployment: the app over HTTPS, the ArgoCD dashboard healthy and in sync, and Grafana dashboards showing cluster metrics._
+### Live GitOps Deployment
+
+![alt text](images/eks-gitops-demo.gif)
+
+*Scaling IT Tools from 1 to 3 replicas — pushing to Git triggers an automatic ArgoCD sync with no manual kubectl apply.*
+
+### Full Walkthrough
+*coming soon*
 
 ---
 
