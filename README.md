@@ -139,7 +139,7 @@ Both authenticate to AWS through GitHub OIDC. No static credentials anywhere.
 
 ### Live GitOps Deployment
 
-![alt text](images/eks-gitops-demo.gif)
+<video controls src="images/EKS-GITOPS-PLATFORM 1 (1).mp4" title="Title"></video>
 
 *Scaling IT Tools from 1 to 3 replicas — pushing to Git triggers an automatic ArgoCD sync with no manual kubectl apply.*
 
