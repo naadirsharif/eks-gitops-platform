@@ -116,7 +116,7 @@ Both authenticate to AWS through GitHub OIDC. No static credentials anywhere.
 
 The setup runs in two stages: a one time bootstrap that creates the resources Terraform itself needs (S3 state backend, ECR, GitHub OIDC), then the main infrastructure and add-ons. ArgoCD takes over deployments from there.
 
-_Full step by step deployment and teardown guide coming soon._
+Full step by step deployment and teardown guide → [deployment_guide.md](deployment_guide.md)
 
 ---
 
