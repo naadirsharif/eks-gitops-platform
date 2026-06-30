@@ -75,7 +75,7 @@ terraform init
 terraform apply
 ```
 
-This takes a while. The cluster alone is around seven minutes, the node group another several, then the add-ons. Twenty to thirty minutes total is normal for EKS, so let it run.
+This takes a while. The cluster alone is around seven minutes, the node group another five to ten, then the add-ons. Twenty to thirty minutes total is normal for EKS on a clean run.
 
 ## Step 4: Connect to the cluster
 
@@ -85,7 +85,7 @@ Point kubectl at the new cluster:
 aws eks update-kubeconfig --name eks-gitops-platform-lab-cluster --region eu-central-1
 ```
 
-The cluster uses API authentication mode, so your local IAM identity needs an access entry to actually talk to it. Set `local_admin_arn` in `infra/terraform.tfvars` to your own IAM ARN (find it with `aws sts get-caller-identity`), then apply again so the access entry gets created. After that:
+The cluster uses API authentication mode, so your IAM identity needs an access entry to actually talk to it. This is already configured in `infra/modules/eks/access.tf` for my own admin user — see the note below if you're running this yourself. After that:
 
 ```bash
 kubectl get nodes
@@ -93,6 +93,8 @@ kubectl get pods -A
 ```
 
 You should see three nodes ready and pods running across the argocd, cert-manager, external-dns, ingress-nginx and monitoring namespaces.
+
+> Note: `infra/modules/eks/access.tf` has my own IAM ARN hardcoded for local kubectl access. If you're running this yourself, swap it for your own ARN (find it with `aws sts get-caller-identity`).
 
 ## Step 5: Deploy the app
 
@@ -143,6 +145,12 @@ kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
 Open `http://localhost:3000`. Log in with username `admin` and the password you set as `GRAFANA_ADMIN_PASSWORD` in the GitHub secrets.
 
 Once you are in, the dashboards are under the Dashboards menu. The Kubernetes compute and Node Exporter ones show CPU, memory, pod health and node status. The Networking dashboard shows traffic per namespace.
+
+## Troubleshooting
+
+**Helm releases fail with "Kubernetes cluster unreachable: the server has asked for the client to provide credentials"**: the identity running Terraform doesn't have access to the cluster's Kubernetes API yet. Make sure `bootstrap_cluster_creator_admin_permissions = true` is set in the EKS cluster's `access_config`, and that the access entry for your admin identity exists (see Step 4). Note that changing `bootstrap_cluster_creator_admin_permissions` on an existing cluster forces a replacement, so it's best to get this right before the first apply.
+
+**NAT Gateway error: "VpcId is required for a NAT gateway with availability mode regional"**: remove `availability_mode = "regional"` from the NAT Gateway resource if you hit this. It's not a valid attribute for that gateway type and breaks the apply partway through, which can also fail the node group since the nodes lose outbound internet access.
 
 ## Teardown
 
