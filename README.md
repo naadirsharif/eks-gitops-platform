@@ -87,42 +87,6 @@ The pipeline never runs `kubectl apply`. It builds the image, scans it, pushes t
 
 ---
 
-## Repository Structure
-
-```
-eks-gitops-platform/
-│
-├── .github/workflows/
-│   ├── terraform.yml         # Infra: Checkov, plan, manual approval, apply
-│   └── app.yml               # App: build, Trivy scan, ECR push, update tag
-│
-├── app/
-│   ├── Dockerfile            # Multi-stage (node builder + nginx runtime)
-│   └── it-tools/             # IT Tools source
-│
-├── infra/
-│   ├── bootstrap/            # One-time: S3 state, ECR, GitHub OIDC
-│   ├── main.tf               # Module calls
-│   ├── providers.tf          # AWS + Helm providers
-│   └── modules/
-│       ├── vpc/              # Subnets, IGW, NAT, route tables
-│       └── eks/              # Cluster, node group, IAM, OIDC, IRSA, Helm
-│
-├── k8s/
-│   ├── addons/               # Helm values for cluster add-ons
-│   │   ├── nginx-ingress/
-│   │   ├── cert-manager/     # values + ClusterIssuer
-│   │   ├── external-dns/
-│   │   ├── argocd/
-│   │   └── monitoring/
-│   ├── apps/it-tools/        # Deployment, service, ingress
-│   └── argocd/applications/  # ArgoCD Application manifests
-│
-└── README.md
-```
-
----
-
 ## CI/CD
 
 Two pipelines, two jobs.
@@ -153,3 +117,74 @@ Both authenticate to AWS through GitHub OIDC. No static credentials anywhere.
 The setup runs in two stages: a one time bootstrap that creates the resources Terraform itself needs (S3 state backend, ECR, GitHub OIDC), then the main infrastructure and add-ons. ArgoCD takes over deployments from there.
 
 _Full step by step deployment and teardown guide coming soon._
+
+---
+
+## Repository Structure
+
+```
+eks-gitops-platform/
+│
+├── .github/workflows/
+│   ├── terraform.yml
+│   └── app.yml
+│
+├── app/
+│   ├── Dockerfile
+│   ├── .dockerignore
+│   └── it-tools/
+│
+├── infra/
+│   ├── bootstrap/
+│   │   ├── main.tf
+│   │   ├── locals.tf
+│   │   └── outputs.tf
+│   ├── main.tf
+│   ├── locals.tf
+│   ├── variables.tf
+│   ├── backend.tf
+│   ├── provider.tf
+│   ├── terraform.tfvars
+│   └── modules/
+│       ├── vpc/
+│       │   ├── main.tf
+│       │   ├── variables.tf
+│       │   └──outputs.tf
+│       └── eks/
+│           ├── main.tf
+│           ├── iam.tf
+│           ├── irsa.tf
+│           ├── access.tf
+│           ├── helm-releases.tf
+│           ├── variables.tf
+│           └── outputs.tf
+│
+├── k8s/
+│   ├── addons/
+│   │   ├── nginx-ingress/
+│   │   │   └── values.yaml
+│   │   ├── cert-manager/
+│   │   │   ├── values.yaml
+│   │   │   └── cluster-issuer/
+│   │   │       └── cluster-issuer.yaml
+│   │   ├── external-dns/
+│   │   │   └── values.yaml
+│   │   ├── argocd/
+│   │   │   └── values.yaml
+│   │   └── monitoring/
+│   │       └── values.yaml
+│   ├── apps/
+│   │   └── it-tools/
+│   │       ├── deployment.yaml
+│   │       ├── service.yaml
+│   │       └── ingress.yaml
+│   └── argocd/
+│       └── applications/
+│           ├── it-tools.yaml
+│           └── cert-manager.yaml
+│
+│
+├── README.md
+├── images 
+└── deployment_guide.md
+```
