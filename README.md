@@ -108,7 +108,7 @@ Both authenticate to AWS through GitHub OIDC. No static credentials anywhere.
 *Scaling IT Tools from 1 to 3 replicas — pushing to Git triggers an automatic ArgoCD sync with no manual kubectl apply.*
 
 ### Full Walkthrough
-[*coming soon*](https://www.youtube.com/watch?v=2qmWjiU949A)
+https://www.youtube.com/watch?v=2qmWjiU949A
 
 ---
 
