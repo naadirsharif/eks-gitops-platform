@@ -31,7 +31,7 @@ During the build it was served over HTTPS at `https://eks.lab.nashar.dev`. The i
 | 🔁 **GitOps reconciliation** | ArgoCD keeps the cluster in sync with Git |
 | ✅ **Security gates in CI/CD** | Checkov on infra, Trivy on images, manual approval on apply |
 | 📦 **Multi-stage image** | 30.07 MB (multi-stage build) |
-| ⚡ **Full stack provisioned** | _resource count / deploy time to be added after deployment_ |
+| ⚡ **Full stack provisioned** | 41 resources via Terraform |
 
 ---
 
