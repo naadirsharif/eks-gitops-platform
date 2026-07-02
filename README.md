@@ -30,7 +30,7 @@ During the build it was served over HTTPS at `https://eks.lab.nashar.dev`. The i
 | 🔒 **Automated TLS and DNS** | cert-manager and external-dns, no manual Route53 steps |
 | 🔁 **GitOps reconciliation** | ArgoCD keeps the cluster in sync with Git |
 | ✅ **Security gates in CI/CD** | Checkov on infra, Trivy on images, manual approval on apply |
-| 📦 **Multi-stage image** | _image size to be added after deployment_ |
+| 📦 **Multi-stage image** | 30.07 MB (multi-stage build) |
 | ⚡ **Full stack provisioned** | _resource count / deploy time to be added after deployment_ |
 
 ---
