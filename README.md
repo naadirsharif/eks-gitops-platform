@@ -184,7 +184,7 @@ eks-gitops-platform/
 │           └── cert-manager.yaml
 │
 │
+├── images/
 ├── README.md
-├── images 
 └── deployment_guide.md
 ```
