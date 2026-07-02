@@ -150,8 +150,6 @@ Once you are in, the dashboards are under the Dashboards menu. The Kubernetes co
 
 **Helm releases fail with "Kubernetes cluster unreachable: the server has asked for the client to provide credentials"**: the identity running Terraform doesn't have access to the cluster's Kubernetes API yet. Make sure `bootstrap_cluster_creator_admin_permissions = true` is set in the EKS cluster's `access_config`, and that the access entry for your admin identity exists (see Step 4). Note that changing `bootstrap_cluster_creator_admin_permissions` on an existing cluster forces a replacement, so it's best to get this right before the first apply.
 
-**NAT Gateway error: "VpcId is required for a NAT gateway with availability mode regional"**: remove `availability_mode = "regional"` from the NAT Gateway resource if you hit this. It's not a valid attribute for that gateway type and breaks the apply partway through, which can also fail the node group since the nodes lose outbound internet access.
-
 ## Teardown
 
 Order matters here. The Kubernetes workloads create AWS resources like the load balancer and DNS records that Terraform does not track, so those need to go first, otherwise the VPC destroy will hang.
