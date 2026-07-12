@@ -53,7 +53,7 @@ The choices below were deliberate, and they shaped how the whole thing fits toge
 I wrote the VPC and EKS modules myself instead of pulling in the popular community modules. Those modules are solid, but they hide a lot. Writing my own forced me to understand how the cluster, the OIDC provider, the node groups and the networking actually connect. If something breaks, I know where to look.
 
 **NLB instead of ALB.**
-NGINX Ingress already does all the HTTP routing inside the cluster, so an ALB in front would just duplicate that work. A Network Load Balancer sits at layer 4 and passes traffic straight through to NGINX. Simpler, cheaper, and one load balancer for everything instead of one per service.
+NGINX Ingress already does all the HTTP routing inside the cluster, so an ALB in front would just duplicate that work. A Network Load Balancer sits at layer 4 and passes traffic straight through to NGINX. Simpler, cheaper, and one load balancer for everything instead of one per service, keeping costs flat (~$16-22/month saved per avoided load balancer) as more services get added later.
 
 **IRSA for pod permissions.**
 Instead of giving the nodes broad IAM permissions that every pod inherits, each workload that needs AWS access gets its own role through IAM Roles for Service Accounts. cert-manager and external-dns can touch Route53. Nothing else can. Small blast radius, clear trust boundaries.
