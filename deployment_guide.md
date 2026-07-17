@@ -1,6 +1,6 @@
 # Deployment Guide
 
-This walks through deploying the whole platform from nothing to a running app on HTTPS. Follow it top to bottom.
+This walks through deploying the whole platform from nothing to a running app on HTTPS.
 
 ## Before you start
 
